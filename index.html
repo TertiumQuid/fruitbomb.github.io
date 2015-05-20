@@ -1,1 +1,169 @@
-Hello World
+<html>
+<head>
+	<title>fruit bomb</title>
+</head>
+<body style='-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;'>
+
+	<div style='margin:0 auto; height:600px; width:900px'>
+		<div id='screen' style='height:560px'>
+			<img src='clouds.png' style='width:900px' />
+		</div>
+		<div id='hud' style='border:1px solid gray; height:80px; padding: 10px; z-index: 99;'>
+			<img src='title.png' style='width:250px' draggable='false' />
+
+			<span style='border:1px solid gray; display:inline-block; margin-left: 200px; padding:5px; text-align:center; text-transform:uppercase;'>
+				<img id='targetFruitImage' src='' style='width:50px' draggable='false' />
+				<br />
+				<span id='targetFruitLabel'></span>
+			</span>
+
+			<span style='display:inline-block; float:right;'>
+				<big id='pointsLabel' style='color:gray; font-size:36px;'></big> 
+				<img src='points.png' style='width:100px' draggable='false' />
+			</span>
+		</div>
+	</div>
+
+
+
+
+<script type="text/javascript">
+
+var fruit = [
+{'name': 'apple', 'points': 2},
+{'name': 'grapes', 'points': 4},
+{'name': 'bannana', 'points': 9},
+{'name': 'orange', 'points': 3},
+{'name': 'strawberry', 'points': 5}
+]
+var points = 0
+var targetFruit = null
+var fallingFruit = {}
+
+var pointsLabel = document.getElementById('pointsLabel')
+setPoints()
+
+function setPoints(){
+pointsLabel.innerHTML = points
+}
+
+function pickTargetFruit() {
+	var index = Math.floor(Math.random() * fruit.length)
+	targetFruit = fruit[index]
+
+	var targetFruitLabel = document.getElementById('targetFruitLabel')
+	targetFruitLabel.innerHTML = targetFruit.name
+
+	var targetFruitImage = document.getElementById('targetFruitImage')
+	targetFruitImage.src = targetFruit.name + '.png'
+}
+pickTargetFruit()
+
+var pickFruitSeconds = 5
+setInterval(pickTargetFruit, pickFruitSeconds * 1000)
+
+var bombPoints = 3
+function clickFruit(img, fruit) {
+    if (img.bomb) {
+	points = points - bombPoints 
+ 	setPoints()
+	explodeFruit(img, 0)
+    } else if (fruit.name == targetFruit.name) {
+        points = points + fruit.points
+        setPoints()
+	removeFruit(img)
+    }
+}
+
+var explosionSeconds = 1
+var frames = [1,2,3,2,1]
+var explosionSpeed = explosionSeconds / frames.length
+
+function explodeFruit(img, frame){
+	if (frame >= frames.length){
+
+}
+
+	var srcAtt = document.createAttribute("src")
+	srcAtt.value = 'explosion-' + frames[frame] + '.png'
+	img.setAttributeNode(srcAtt)
+
+  	setTimeout(function() { explodeFruit(img, frame + 1) }, explosionSpeed)
+}
+
+var dropSpeed = 20
+function makeFruit() {
+
+	var index = Math.floor(Math.random() * fruit.length)
+	var newFruit = fruit[index]
+
+	var bombPercent = 4
+	var isBomb = Math.floor(Math.random() * 10) < bombPercent
+
+	var y = 0
+	var x = Math.floor(Math.random() * 850)
+
+	var img = document.createElement("img")
+
+	img.bomb = isBomb
+ 
+	var srcAtt = document.createAttribute("src")
+	srcAtt.value = newFruit.name + '.png'
+	img.setAttributeNode(srcAtt)
+
+	var draggableAtt = document.createAttribute("draggable")
+	draggableAtt.value = false
+	img.setAttributeNode(draggableAtt)
+
+        img.onmousedown = function() {
+            clickFruit(img, newFruit)
+        }
+
+	var styleAtt = document.createAttribute("style")
+	styleAtt.value = 'position:absolute; left: ' + x + 'px; top: ' + y + 'px;'	
+	img.setAttributeNode(styleAtt)
+
+	document.getElementById('screen').appendChild(img)
+	var id = setTimeout(function() { dropFruit(img) }, 10)
+
+	var timerAtt = document.createAttribute("data-timer")
+	timerAtt.value = id 	
+	img.setAttributeNode(timerAtt)
+}
+
+function removeFruit(fruit) {
+    window.clearInterval(fruit.getAttribute('data-timer'))
+    fruit.parentNode.removeChild(fruit)
+}
+
+var dropDistance = 10
+function dropFruit(fruit) {
+    var style = window.getComputedStyle(fruit)
+    var top = style.getPropertyValue('top')
+    var y = parseInt(top)
+    y = y + dropDistance
+
+    if (y > 560) {  
+        removeFruit(fruit)
+	return
+    }
+
+
+    var left = style.getPropertyValue('left');
+    var x = parseInt(left)
+
+    var styleAtt = document.createAttribute("style")
+    styleAtt.value = 'position:absolute; left: ' + x + 'px; top: ' + y + 'px;'	
+    fruit.setAttributeNode(styleAtt)
+
+    setTimeout(function() { dropFruit(fruit) }, dropSpeed)
+}
+
+var dropFruitSeconds = 1
+setInterval(makeFruit, dropFruitSeconds * 1000)
+</script>
+
+
+
+</body>
+</html>
