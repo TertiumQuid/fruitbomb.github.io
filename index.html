@@ -6,7 +6,7 @@
 
 	<div style='margin:0 auto; height:600px; width:900px'>
 		<div id='screen' style='height:560px'>
-			<img src='clouds.png' style='width:900px' />
+			<img src='clouds.png' style='width:900px' draggable='false' />
 		</div>
 		<div id='hud' style='border:1px solid gray; height:80px; padding: 10px; z-index: 99;'>
 			<img src='title.png' style='width:250px' draggable='false' />
@@ -18,7 +18,7 @@
 			</span>
 
 			<span style='display:inline-block; float:right;'>
-				<big id='pointsLabel' style='color:gray; font-size:36px;'></big>
+				<big id='pointsLabel' style='color:gray; font-size:36px;'></big> 
 				<img src='points.png' style='width:100px' draggable='false' />
 			</span>
 		</div>
@@ -44,7 +44,7 @@ var pointsLabel = document.getElementById('pointsLabel')
 setPoints()
 
 function setPoints(){
-pointsLabel.innerHTML = points
+	pointsLabel.innerHTML = points
 }
 
 function pickTargetFruit() {
@@ -65,8 +65,9 @@ setInterval(pickTargetFruit, pickFruitSeconds * 1000)
 var bombPoints = 3
 function clickFruit(img, fruit) {
     if (img.bomb) {
-	points = points - bombPoints
+	points = points - bombPoints 
  	setPoints()
+        window.clearInterval(img.getAttribute('data-timer'))
 	explodeFruit(img, 0)
     } else if (fruit.name == targetFruit.name) {
         points = points + fruit.points
@@ -75,20 +76,25 @@ function clickFruit(img, fruit) {
     }
 }
 
-var explosionSeconds = 1
-var frames = [1,2,3,2,1]
+var explosionSeconds = 1 * 300
+var frames = [1,2,3,3,3,2,1]
 var explosionSpeed = explosionSeconds / frames.length
 
-function explodeFruit(img, frame){
-	if (frame >= frames.length) {
-        return
-    }
+function explodeFruit(img, frame) {
+
+	node = img.cloneNode()
+    	img.parentNode.removeChild(img)
+
+	if (frame >= frames.length){
+		return
+	}
 
 	var srcAtt = document.createAttribute("src")
 	srcAtt.value = 'explosion-' + frames[frame] + '.png'
-	img.setAttributeNode(srcAtt)
+	node.setAttributeNode(srcAtt)
 
-  	setTimeout(function() { explodeFruit(img, frame + 1) }, explosionSpeed)
+	document.getElementById('screen').appendChild(node)
+  	setTimeout(function() { explodeFruit(node, frame + 1) }, explosionSpeed)
 }
 
 var dropSpeed = 20
@@ -106,7 +112,7 @@ function makeFruit() {
 	var img = document.createElement("img")
 
 	img.bomb = isBomb
-
+ 
 	var srcAtt = document.createAttribute("src")
 	srcAtt.value = newFruit.name + '.png'
 	img.setAttributeNode(srcAtt)
@@ -120,14 +126,14 @@ function makeFruit() {
         }
 
 	var styleAtt = document.createAttribute("style")
-	styleAtt.value = 'position:absolute; left: ' + x + 'px; top: ' + y + 'px;'
+	styleAtt.value = 'position:absolute; left: ' + x + 'px; top: ' + y + 'px;'	
 	img.setAttributeNode(styleAtt)
 
 	document.getElementById('screen').appendChild(img)
 	var id = setTimeout(function() { dropFruit(img) }, 10)
 
 	var timerAtt = document.createAttribute("data-timer")
-	timerAtt.value = id
+	timerAtt.value = id 	
 	img.setAttributeNode(timerAtt)
 }
 
@@ -143,7 +149,7 @@ function dropFruit(fruit) {
     var y = parseInt(top)
     y = y + dropDistance
 
-    if (y > 560) {
+    if (y > 560) {  
         removeFruit(fruit)
 	return
     }
@@ -153,7 +159,7 @@ function dropFruit(fruit) {
     var x = parseInt(left)
 
     var styleAtt = document.createAttribute("style")
-    styleAtt.value = 'position:absolute; left: ' + x + 'px; top: ' + y + 'px;'
+    styleAtt.value = 'position:absolute; left: ' + x + 'px; top: ' + y + 'px;'	
     fruit.setAttributeNode(styleAtt)
 
     setTimeout(function() { dropFruit(fruit) }, dropSpeed)
