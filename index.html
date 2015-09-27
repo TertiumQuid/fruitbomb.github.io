@@ -24,8 +24,9 @@
 		</div>
 	</div>
 
-
-
+  <audio autoplay="autoplay">
+    <source src="go.mp3" />
+  </audio>
 
 <script type="text/javascript">
 
@@ -39,6 +40,10 @@ var fruit = [
 var points = 0
 var targetFruit = null
 var fallingFruit = {}
+var boomAudio = new Audio()
+boomAudio.src = "boom.mp3"
+var tingAudio = new Audio()
+tingAudio.src = "ting.mp3"
 
 var pointsLabel = document.getElementById('pointsLabel')
 setPoints()
@@ -64,16 +69,18 @@ setInterval(pickTargetFruit, pickFruitSeconds * 1000)
 
 var bombPoints = 3
 function clickFruit(img, fruit) {
-    if (img.bomb) {
-	points = points - bombPoints 
- 	setPoints()
-        window.clearInterval(img.getAttribute('data-timer'))
-	explodeFruit(img, 0)
-    } else if (fruit.name == targetFruit.name) {
-        points = points + fruit.points
-        setPoints()
-	removeFruit(img)
-    }
+  if (img.bomb) {
+	  points = points - bombPoints 
+ 	  setPoints()
+    window.clearInterval(img.getAttribute('data-timer'))
+    boomAudio.play()
+	  explodeFruit(img, 0)
+  } else if (fruit.name == targetFruit.name) {
+    points = points + fruit.points
+    setPoints()
+    tingAudio.play()
+	  removeFruit(img)
+  }
 }
 
 var explosionSeconds = 1 * 300
@@ -97,7 +104,7 @@ function explodeFruit(img, frame) {
   	setTimeout(function() { explodeFruit(node, frame + 1) }, explosionSpeed)
 }
 
-var dropSpeed = 20
+var dropSpeed = 23
 function makeFruit() {
 
 	var index = Math.floor(Math.random() * fruit.length)
